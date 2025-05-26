@@ -22,6 +22,8 @@ import coil.compose.AsyncImage
 import com.example.apptvseries.model.TvShow
 import com.example.apptvseries.viewmodel.TvShowViewModel
 import com.example.apptvseries.ui.state.TvShowUiState
+import com.example.apptvseries.ui.components.AppLogo
+import com.example.apptvseries.ui.components.LogoSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +66,22 @@ fun TvShowsScreenWithSearch(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+        // Header avec logo
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AppLogo(size = LogoSize.Medium)
+            Text(
+                text = "TV Series",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
         // Barre de recherche
         Card(
             modifier = Modifier
@@ -75,7 +93,7 @@ fun TvShowsScreenWithSearch(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Rechercher ") },
+                placeholder = { Text("Rechercher") },
                 leadingIcon = {
                     if (uiState is TvShowUiState.Loading && searchQuery.isNotBlank()) {
                         CircularProgressIndicator(
