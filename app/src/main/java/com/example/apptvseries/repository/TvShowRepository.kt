@@ -7,6 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 interface TvShowRepository {
     suspend fun getMostPopularTvShows(page: Int): Result<List<TvShow>>
+    suspend fun searchTvShows(query: String): Result<List<TvShow>>
 }
 
 class TvShowRepositoryImpl : TvShowRepository {
@@ -22,6 +23,15 @@ class TvShowRepositoryImpl : TvShowRepository {
     override suspend fun getMostPopularTvShows(page: Int): Result<List<TvShow>> {
         return try {
             val response = apiService.getMostPopularTvShows(page)
+            Result.success(response.tvShows)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun searchTvShows(query: String): Result<List<TvShow>> {
+        return try {
+            val response = apiService.searchTvShows(query)
             Result.success(response.tvShows)
         } catch (e: Exception) {
             Result.failure(e)

@@ -66,6 +66,9 @@ class TvShowViewModel : ViewModel() {
                         }
                     }
 
+            } catch (e: Exception) {
+                val errorMessage = "Erreur inattendue: ${e.message}"
+                _uiState.value = TvShowUiState.Error(errorMessage)
             } finally {
                 isLoadingMore = false
             }
@@ -74,6 +77,40 @@ class TvShowViewModel : ViewModel() {
 
     fun loadMoreTvShows() {
         loadTvShows(isRefresh = false)
+    }
+
+    fun searchTvShows(query: String) {
+        if (query.isBlank()) {
+            loadTvShows(isRefresh = true)
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = TvShowUiState.Loading
+
+                repository.searchTvShows(query.trim())
+                    .onSuccess { searchResults ->
+                        _uiState.value = TvShowUiState.SearchResults(searchResults, query)
+                    }
+                    .onFailure { error ->
+                        val errorMessage = when {
+                            error.message?.contains("Unable to resolve host") == true ->
+                                "Erreur de connexion. Vérifiez votre connexion internet."
+                            error.message?.contains("timeout") == true ->
+                                "Délai d'attente dépassé. Réessayez."
+                            else -> "Erreur lors de la recherche: ${error.message}"
+                        }
+                        _uiState.value = TvShowUiState.Error(errorMessage)
+                    }
+            } catch (e: Exception) {
+                _uiState.value = TvShowUiState.Error("Erreur de recherche: ${e.message}")
+            }
+        }
+    }
+
+    fun clearSearch() {
+        loadTvShows(isRefresh = true)
     }
 
     fun retryLoading() {
